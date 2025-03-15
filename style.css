@@ -324,18 +324,37 @@ p {
     gap: 15px;
 }
 
+/* 游戏内容行 - 新增 */
+.game-content-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+}
+
+/* 问题答题区域容器 - 新增 */
+.question-answer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 15px;
+}
+
 #question {
     font-size: 1.8rem;
     font-weight: bold;
     color: #ffde59;
     margin-bottom: 15px;
     text-align: center;
+    width: 100%;
 }
 
 /* 像素风格输入框 - 更新 */
 .pixel-input {
     font-family: 'Press Start 2P', cursive;
-    width: 60%;
+    width: 65%; /* 调整宽度 */
     padding: 0.8rem;
     font-size: 1rem;
     text-align: center;
@@ -360,7 +379,12 @@ p {
     align-items: center;
     gap: 15px;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 0; /* 移除底部边距 */
+}
+
+#submit-btn {
+    padding: 0.6rem 1rem; /* 调整按钮大小 */
+    font-size: 0.9rem;
 }
 
 /* 隐藏输入框的原生数字按钮 */
@@ -448,10 +472,11 @@ input[type=number] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 15px;
-    width: 100%;
-    max-width: 300px;
+    margin-top: 0; /* 移除顶部边距 */
+    width: auto; /* 自动宽度 */
+    max-width: 45%; /* 限制最大宽度 */
     gap: 10px;
+    flex: 1;
 }
 
 .keyboard-row {
@@ -591,6 +616,25 @@ input[type=number] {
     .start-info-container {
         flex-direction: row;
     }
+    
+    /* 横屏模式下游戏内容布局优化 */
+    .game-content-row {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .question-answer-container {
+        padding-right: 15px;
+    }
+    
+    #question {
+        font-size: 2rem;
+    }
+    
+    .number-keyboard {
+        padding-left: 15px;
+        border-left: 2px solid rgba(255, 255, 255, 0.2);
+    }
 }
 
 /* 媒体查询优化 */
@@ -634,6 +678,21 @@ input[type=number] {
     .mode-display-row, .game-stats-row {
         flex: none;
         margin-bottom: 10px;
+    }
+    
+    /* 小屏幕设备上游戏内容行改为垂直布局 */
+    .game-content-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .question-answer-container, .number-keyboard {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #question {
+        font-size: 1.5rem;
     }
 }
 
