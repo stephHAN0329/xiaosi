@@ -31,9 +31,15 @@
     <div id="start-screen" class="screen active">
         <h1 class="pixel-text">MATH PRACTICE</h1>
         <div class="pixel-character"></div>
-        <p class="pixel-text">PRACTICE TWO-DIGIT ARITHMETIC</p>
-        <div class="high-score-container">
-            <p class="pixel-text">HIGH SCORE: <span id="high-score">0</span></p>
+        
+        <!-- 信息容器 - 高分和模式信息并列 -->
+        <div class="start-info-container">
+            <div class="high-score-container">
+                <p class="pixel-text">HIGH SCORE: <span id="high-score">0</span></p>
+            </div>
+            <div class="mode-info">
+                <p id="mode-description" class="pixel-text">LIVES: 3 | TIME: 10s</p>
+            </div>
         </div>
         
         <!-- Game Mode Selection -->
@@ -44,42 +50,43 @@
                 <button id="normal-mode" class="pixel-button mode-btn selected">NORMAL</button>
                 <button id="hard-mode" class="pixel-button mode-btn">HARD</button>
             </div>
-            <div class="mode-info">
-                <p id="mode-description" class="pixel-text">LIVES: 3 | TIME: 10s</p>
-            </div>
         </div>
         
-        <p class="instruction pixel-text">PRESS SPACE TO START</p>
         <button id="start-btn" class="pixel-button start-btn">START GAME</button>
+        <p class="instruction pixel-text">OR PRESS SPACE</p>
     </div>
 
     <!-- Game Screen -->
     <div id="game-screen" class="screen">
         <div class="game-info-container">
-            <div class="mode-display-row pixel-panel">
-                <span class="pixel-text">MODE: </span>
-                <span id="current-mode" class="pixel-text">NORMAL</span>
-            </div>
-            <div class="game-stats-row pixel-panel">
-                <div class="lives">
-                    <span class="pixel-text">LIVES: </span>
-                    <span id="lives-count" class="pixel-text">3</span>
+            <div class="game-info-row">
+                <div class="mode-display-row pixel-panel">
+                    <span class="pixel-text">MODE: </span>
+                    <span id="current-mode" class="pixel-text">NORMAL</span>
                 </div>
-                <div class="timer">
-                    <span class="pixel-text">TIME: </span>
-                    <span id="timer-count" class="pixel-text">10</span>
-                </div>
-                <div class="score">
-                    <span class="pixel-text">SCORE: </span>
-                    <span id="score-count" class="pixel-text">0</span>
+                <div class="game-stats-row pixel-panel">
+                    <div class="lives">
+                        <span class="pixel-text">LIVES: </span>
+                        <span id="lives-count" class="pixel-text">3</span>
+                    </div>
+                    <div class="timer">
+                        <span class="pixel-text">TIME: </span>
+                        <span id="timer-count" class="pixel-text">10</span>
+                    </div>
+                    <div class="score">
+                        <span class="pixel-text">SCORE: </span>
+                        <span id="score-count" class="pixel-text">0</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="question-container pixel-panel">
             <div id="question" class="pixel-text">READY?</div>
-            <input type="number" id="answer-input" class="pixel-input" placeholder="ANSWER">
-            <button id="submit-btn" class="pixel-button">SUBMIT</button>
+            <div class="answer-input-container">
+                <input type="number" id="answer-input" class="pixel-input" placeholder="ANSWER">
+                <button id="submit-btn" class="pixel-button">SUBMIT</button>
+            </div>
             
             <div class="number-keyboard">
                 <div class="keyboard-row">
@@ -110,9 +117,11 @@
     <div id="game-over-screen" class="screen">
         <h1 class="pixel-text">GAME OVER</h1>
         <div class="pixel-character sad"></div>
-        <p class="pixel-text">MODE: <span id="game-over-mode">NORMAL</span></p>
-        <p class="pixel-text">YOUR SCORE: <span id="final-score">0</span></p>
-        <p class="pixel-text">HIGH SCORE: <span id="game-over-high-score">0</span></p>
+        <div class="game-results">
+            <p class="pixel-text">MODE: <span id="game-over-mode">NORMAL</span></p>
+            <p class="pixel-text">YOUR SCORE: <span id="final-score">0</span></p>
+            <p class="pixel-text">HIGH SCORE: <span id="game-over-high-score">0</span></p>
+        </div>
         <button id="restart-btn" class="pixel-button">PLAY AGAIN</button>
     </div>
     
@@ -121,8 +130,10 @@
         <h1 class="pixel-text">GAME PAUSED</h1>
         <div class="pixel-character"></div>
         <p class="pixel-text">CURRENT SCORE: <span id="pause-score">0</span></p>
-        <button id="resume-btn" class="pixel-button">RESUME</button>
-        <button id="quit-btn" class="pixel-button">QUIT</button>
+        <div class="pause-buttons">
+            <button id="resume-btn" class="pixel-button">RESUME</button>
+            <button id="quit-btn" class="pixel-button">QUIT</button>
+        </div>
     </div>
 
     <script src="script.js"></script>

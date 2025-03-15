@@ -22,14 +22,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* 降低黑色背景的不透明度 */
-    background-image: url('assets/pixel-bg.png'); /* 恢复背景图片 */
+    background-color: #000;
+    background-image: url('assets/pixel-bg.png');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
     z-index: -1;
-    opacity: 0.8; /* 提高背景图片的不透明度 */
-    filter: brightness(0.8) contrast(1.2); /* 调整亮度和对比度 */
+    opacity: 0.8;
 }
 
 /* 像素风格文字 */
@@ -42,14 +40,13 @@ body {
 
 /* 像素风格面板 */
 .pixel-panel {
-    background-color: rgba(0, 0, 0, 0.5); /* 降低不透明度 */
-    border: 3px solid #fff;
-    box-shadow: 0 0 0 3px #000, 0 0 0 6px #555, 0 0 15px rgba(0, 255, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 4px #000, 0 0 0 8px #555;
     image-rendering: pixelated;
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    border-radius: 5px;
 }
 
 /* 像素风格按钮 */
@@ -59,24 +56,21 @@ body {
     font-size: 1rem;
     background-color: #4a6cd4;
     color: white;
-    border: 3px solid #fff;
-    box-shadow: 0 0 0 3px #000, 0 0 10px rgba(0, 255, 255, 0.5);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 4px #000;
     cursor: pointer;
     transition: all 0.1s;
     image-rendering: pixelated;
     text-align: center;
-    border-radius: 5px;
 }
 
 .pixel-button:hover {
     background-color: #7a9cff;
     transform: scale(1.05);
-    box-shadow: 0 0 0 3px #000, 0 0 15px rgba(0, 255, 255, 0.8);
 }
 
 .pixel-button:active {
     transform: scale(0.95);
-    box-shadow: 0 0 0 3px #000, 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
 /* 控制按钮 */
@@ -100,13 +94,13 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.7); /* 降低不透明度，使其半透明 */
+    background-color: rgba(0, 0, 0, 0.85);
     border: 4px solid #fff;
     border-radius: 10px;
     padding: 1.5rem;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5), 0 0 40px rgba(0, 0, 255, 0.3), inset 0 0 50px rgba(0, 0, 0, 0.5);
-    max-width: 700px; /* 减小最大宽度 */
-    width: 85%; /* 减小宽度百分比 */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    max-width: 800px;
+    width: 90%;
     aspect-ratio: 16/9;
     overflow: hidden;
     position: relative;
@@ -168,48 +162,23 @@ p {
     transform: scale(1.05);
 }
 
-/* 暂停按钮 */
-.pause-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
-    width: 100%;
-}
-
-/* 开始页面信息布局 */
-.start-info-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-    margin: 10px 0;
+.mode-info {
+    margin-top: 8px;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+    border-radius: 5px;
 }
 
 /* 高分容器 */
 .high-score-container {
-    margin: 0;
+    margin: 10px 0;
     padding: 10px;
-    background-color: rgba(74, 108, 212, 0.3); /* 降低不透明度 */
+    background-color: rgba(74, 108, 212, 0.5);
     border: 2px solid #fff;
     border-radius: 5px;
-    flex: 1;
+    width: 100%;
     text-align: center;
-    max-width: 45%;
-}
-
-/* 模式信息容器 */
-.mode-info {
-    margin: 0;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.3); /* 降低不透明度 */
-    border: 2px solid #fff;
-    border-radius: 5px;
-    flex: 1;
-    max-width: 45%;
 }
 
 #high-score, #game-over-high-score {
@@ -259,14 +228,6 @@ p {
     margin-bottom: 15px;
 }
 
-/* 游戏信息行 - 新增 */
-.game-info-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    width: 100%;
-}
-
 /* 游戏模式行样式 */
 .mode-display-row {
     width: 100%;
@@ -275,7 +236,6 @@ p {
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 10px;
-    flex: 1;
 }
 
 /* 游戏状态行 */
@@ -285,7 +245,6 @@ p {
     justify-content: space-between;
     padding: 10px;
     border-radius: 5px;
-    flex: 2;
 }
 
 /* 游戏状态样式 */
@@ -332,7 +291,7 @@ p {
     text-align: center;
 }
 
-/* 像素风格输入框 - 更新 */
+/* 像素风格输入框 */
 .pixel-input {
     font-family: 'Press Start 2P', cursive;
     width: 60%;
@@ -341,16 +300,13 @@ p {
     text-align: center;
     background-color: #000;
     color: #fff;
-    border: 3px solid #fff;
+    border: 4px solid #fff;
     outline: none;
-    box-shadow: 0 0 0 3px #000, 0 0 10px rgba(0, 255, 255, 0.4);
-    transition: all 0.2s;
-    border-radius: 5px;
 }
 
-.pixel-input:focus, .pixel-input.focused {
+.pixel-input.focused {
     border-color: #7a9cff;
-    box-shadow: 0 0 0 3px #000, 0 0 15px rgba(122, 156, 255, 0.8);
+    box-shadow: 0 0 10px #7a9cff;
 }
 
 /* 答案输入容器 */
@@ -403,6 +359,16 @@ input[type=number] {
     align-items: center;
     gap: 10px;
     margin: 15px 0;
+    width: 100%;
+}
+
+/* 暂停按钮 */
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
     width: 100%;
 }
 
@@ -469,22 +435,6 @@ input[type=number] {
     align-items: center;
     justify-content: center;
     padding: 0;
-    background-color: #333;
-    border: 3px solid #fff;
-    box-shadow: 0 0 0 2px #000, 0 0 8px rgba(0, 255, 255, 0.4);
-    transition: all 0.1s;
-    border-radius: 5px;
-}
-
-.num-key:hover {
-    background-color: #555;
-    transform: scale(1.05);
-    box-shadow: 0 0 0 2px #000, 0 0 12px rgba(0, 255, 255, 0.6);
-}
-
-.num-key:active {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 2px #000, 0 0 4px rgba(0, 255, 255, 0.2);
 }
 
 /* 横屏提示样式 */
@@ -585,11 +535,6 @@ input[type=number] {
     
     .pause-buttons {
         flex-direction: row;
-        justify-content: center;
-    }
-    
-    .start-info-container {
-        flex-direction: row;
     }
 }
 
@@ -613,27 +558,6 @@ input[type=number] {
     .num-key {
         width: 50px;
         height: 50px;
-    }
-    
-    .start-info-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .high-score-container, .mode-info {
-        max-width: 100%;
-        width: 100%;
-    }
-    
-    /* 小屏幕设备上游戏信息行改为垂直布局 */
-    .game-info-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .mode-display-row, .game-stats-row {
-        flex: none;
-        margin-bottom: 10px;
     }
 }
 

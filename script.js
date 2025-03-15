@@ -95,6 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // 横屏
                 if (rotateMessage) rotateMessage.style.display = 'none';
+                // 如果游戏已暂停且暂停原因是屏幕方向，则恢复游戏
+                if (gameActive && isPaused && pauseScreen.classList.contains('active') && 
+                    pauseReason === 'orientation') {
+                    resumeGame();
+                }
             }
         } else {
             // 桌面设备不显示旋转提示
@@ -102,12 +107,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // 初始检测屏幕方向
-    checkOrientation();
+    // 添加暂停原因变量
+    let pauseReason = '';
     
-    // 监听屏幕方向变化
+    // 修改暂停游戏函数
+    function pauseGame(reason = '') {
+        if (!gameActive || isPaused) return;
+        
+        pauseReason = reason;
+        isPaused = true;
+        clearInterval(timerInterval);
+        pauseScore.textContent = score;
+        
+        // 隐藏游戏屏幕，显示暂停屏幕
+        gameScreen.classList.remove('active');
+        pauseScreen.classList.add('active');
+        
+        // 暂停背景音乐
+        if (isMusicOn) {
+            bgMusic.pause();
+        }
+    }
+    
+    // 修改恢复游戏函数
+    function resumeGame() {
+        // 检查是否处于竖屏模式，如果是则不恢复游戏
+        if (window.innerHeight > window.innerWidth && window.innerWidth <= 1024) {
+            return;
+        }
+        
+        if (!isPaused) return;
+        
+        isPaused = false;
+        pauseReason = '';
+        
+        // 隐藏暂停屏幕，显示游戏屏幕
+        pauseScreen.classList.remove('active');
+        gameScreen.classList.add('active');
+        
+        // 恢复计时器
+        startTimer();
+        
+        // 恢复背景音乐
+        if (isMusicOn) {
+            bgMusic.play().catch(e => console.log('无法播放背景音乐:', e));
+        }
+        
+        // 聚焦到输入框
+        setTimeout(() => {
+            answerInput.focus();
+        }, 100);
+    }
+    
+    // 修改暂停按钮事件处理
+    pauseBtn.addEventListener('click', () => {
+        buttonSound.play().catch(e => console.log('无法播放按钮音效:', e));
+        pauseGame('manual');
+    });
+    
+    // 添加屏幕方向变化监听
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
+    
+    // 初始检查屏幕方向
+    checkOrientation();
     
     // iOS设备优化
     if (isIOS) {
@@ -279,14 +342,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playButtonSound();
     });
     
-    // Pause control
-    pauseBtn.addEventListener('click', () => {
-        if (gameActive && !isPaused) {
-            pauseGame();
-        }
-        playButtonSound();
-    });
-    
     // Resume button
     resumeBtn.addEventListener('click', () => {
         if (isPaused) {
@@ -349,43 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Pause game
-    function pauseGame() {
-        if (!gameActive) return;
-        
-        isPaused = true;
-        clearInterval(timerInterval);
-        
-        // Update pause screen
-        pauseScore.textContent = score;
-        
-        // Show pause screen
-        gameScreen.classList.remove('active');
-        pauseScreen.classList.add('active');
-    }
-    
-    // Resume game
-    function resumeGame() {
-        // 检查是否处于横屏模式
-        if (window.innerWidth <= 1024 && window.innerHeight > window.innerWidth) {
-            // 如果是竖屏，不恢复游戏，显示旋转提示
-            if (rotateMessage) rotateMessage.style.display = 'flex';
-            return;
-        }
-        
-        isPaused = false;
-        
-        // Hide pause screen
-        pauseScreen.classList.remove('active');
-        gameScreen.classList.add('active');
-        
-        // Resume timer
-        startTimer();
-        
-        // Focus on input
-        answerInput.focus();
-    }
-    
     // Quit game
     function quitGame() {
         isPaused = false;
@@ -426,16 +444,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Switch screens
         startScreen.classList.remove('active');
         gameScreen.classList.add('active');
+        gameOverScreen.classList.remove('active');
+        pauseScreen.classList.remove('active');
         
         // Start game
         gameActive = true;
         isPaused = false;
+        pauseReason = '';
         generateQuestion();
         
         // 确保音乐正在播放（如果已启用）
         if (isMusicOn && bgMusic.paused) {
-            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            bgMusic.play().catch(e => console.log('无法播放背景音乐:', e));
         }
+        
+        // 聚焦到输入框
+        setTimeout(() => {
+            answerInput.focus();
+        }, 100);
     }
 
     // Update lives display with heart emoji
@@ -614,11 +640,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // End game
     function endGame() {
         gameActive = false;
+        isPaused = false;
+        pauseReason = '';
         clearInterval(timerInterval);
         
         // Play game over sound effect
         if (isMusicOn) {
-            gameOverSound.play().catch(e => console.log('Unable to play sound effect:', e));
+            gameOverSound.play().catch(e => console.log('无法播放游戏结束音效:', e));
         }
         
         // Check if this is a new high score
@@ -628,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
             highScores[currentMode.name] = score;
             // Save to localStorage with the correct key
             localStorage.setItem(`mathGameHighScore${currentMode.name}`, score);
-            console.log(`New high score for ${currentMode.name} mode: ${score}`);
+            console.log(`新的${currentMode.name}模式最高分: ${score}`);
         }
         
         // Show final score and high score
@@ -640,13 +668,20 @@ document.addEventListener('DOMContentLoaded', () => {
             gameOverHighScore.textContent = highScores[currentMode.name];
         }
         
-        // Switch to game over screen
-        gameScreen.classList.remove('active');
-        gameOverScreen.classList.add('active');
+        // 检查屏幕方向
+        checkOrientation();
+        
+        // 如果不是竖屏模式，显示游戏结束屏幕
+        if (!(window.innerWidth <= 1024 && window.innerHeight > window.innerWidth)) {
+            // Switch to game over screen
+            gameScreen.classList.remove('active');
+            pauseScreen.classList.remove('active');
+            gameOverScreen.classList.add('active');
+        }
         
         // 如果音乐已开启，确保音乐正在播放
         if (isMusicOn && bgMusic.paused) {
-            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            bgMusic.play().catch(e => console.log('无法播放背景音乐:', e));
         }
     }
 
