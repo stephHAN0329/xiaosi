@@ -1,0 +1,462 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 像素风格背景 */
+.pixel-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/pixel-bg.png');
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    opacity: 0.8;
+}
+
+/* 像素风格文字 */
+.pixel-text {
+    font-family: 'Press Start 2P', cursive;
+    text-shadow: 2px 2px 0 #000;
+    line-height: 1.5;
+}
+
+/* 像素风格面板 */
+.pixel-panel {
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 4px #000, 0 0 0 8px #555;
+    image-rendering: pixelated;
+}
+
+/* 像素风格按钮 */
+.pixel-button {
+    font-family: 'Press Start 2P', cursive;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    background-color: #4a6cd4;
+    color: white;
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 4px #000;
+    cursor: pointer;
+    transition: all 0.1s;
+    image-rendering: pixelated;
+}
+
+.pixel-button:hover {
+    background-color: #7a9cff;
+    transform: scale(1.05);
+}
+
+.pixel-button:active {
+    transform: scale(0.95);
+}
+
+/* 控制按钮 */
+.control-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* 游戏模式选择 */
+.mode-selection {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.mode-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.mode-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.mode-btn.selected {
+    background-color: #5eff8f;
+    color: #000;
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.mode-info {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #fff;
+    border-radius: 5px;
+}
+
+/* 像素风格输入框 */
+.pixel-input {
+    font-family: 'Press Start 2P', cursive;
+    width: 60%;
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    text-align: center;
+    background-color: #000;
+    color: #fff;
+    border: 4px solid #fff;
+    outline: none;
+}
+
+/* 像素风格角色 */
+.pixel-character {
+    width: 100px;
+    height: 100px;
+    background-image: url('assets/character.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 20px 0;
+    image-rendering: pixelated;
+}
+
+.pixel-character.sad {
+    background-image: url('assets/character-sad.png');
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 4px #000, 0 0 0 8px #555;
+    z-index: 10;
+}
+
+.active {
+    display: flex;
+}
+
+h1 {
+    color: #7a9cff;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+h2 {
+    color: #5eff8f;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.high-score-container {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: rgba(74, 108, 212, 0.5);
+    border: 2px solid #fff;
+}
+
+#high-score, #game-over-high-score {
+    color: #ffde59;
+    font-size: 1.2rem;
+}
+
+.instruction {
+    margin-top: 2rem;
+    font-weight: bold;
+    color: #ff5e5e;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* 添加抖动动画 */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    10% { transform: translateX(-10px); }
+    20% { transform: translateX(10px); }
+    30% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    50% { transform: translateX(-5px); }
+    60% { transform: translateX(5px); }
+    70% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    90% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 5px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* 新增游戏信息容器样式 */
+.game-info-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* 游戏模式行样式 */
+.mode-display-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.8rem;
+    border-radius: 5px;
+}
+
+/* 游戏状态行样式 */
+.game-stats-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem;
+    border-radius: 5px;
+}
+
+.mode-display, .lives, .timer, .score {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+#current-mode {
+    color: #5eff8f;
+}
+
+#lives-count {
+    color: #ff5e5e;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+#timer-count {
+    color: #7a9cff;
+}
+
+#score-count, #final-score, #pause-score {
+    color: #5eff8f;
+}
+
+.question-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#question {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffde59;
+    margin-bottom: 1rem;
+}
+
+#restart-btn {
+    margin-top: 2rem;
+    background-color: #5eff8f;
+    color: #000;
+}
+
+#restart-btn:hover {
+    background-color: #8fffb0;
+}
+
+#resume-btn {
+    background-color: #5eff8f;
+    color: #000;
+    margin-bottom: 1rem;
+}
+
+#quit-btn {
+    background-color: #ff5e5e;
+}
+
+#game-over-mode {
+    color: #5eff8f;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .screen {
+        width: 90%;
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    #question {
+        font-size: 1.5rem;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pixel-input {
+        width: 80%;
+    }
+    
+    .mode-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* iOS设备优化 */
+@supports (-webkit-touch-callout: none) {
+    /* 防止iOS上的双击缩放 */
+    * {
+        touch-action: manipulation;
+    }
+    
+    /* 防止iOS上的文本选择 */
+    body {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    
+    /* 修复iOS上的输入框问题 */
+    .pixel-input {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 0;
+    }
+    
+    /* 修复iOS上的按钮样式 */
+    .pixel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 0;
+    }
+}
+
+/* iPad特定优化 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .screen {
+        max-width: 700px;
+        padding: 2.5rem;
+    }
+    
+    h1 {
+        font-size: 2.5rem;
+    }
+    
+    #question {
+        font-size: 2.5rem;
+    }
+    
+    .pixel-input {
+        width: 70%;
+        padding: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .pixel-button {
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+    }
+    
+    .pixel-character {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .mode-display-row, .game-stats-row {
+        padding: 1.2rem;
+    }
+    
+    .mode-display, .lives, .timer, .score {
+        font-size: 1rem;
+    }
+    
+    #lives-count {
+        font-size: 1.5rem;
+    }
+}
+
+/* 横屏模式优化 */
+@media only screen and (orientation: landscape) and (max-height: 500px) {
+    .screen {
+        padding: 1rem;
+    }
+    
+    .pixel-character {
+        margin: 10px 0;
+    }
+    
+    h1 {
+        margin-bottom: 0.8rem;
+    }
+    
+    p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .instruction {
+        margin-top: 1rem;
+    }
+    
+    .game-info-container {
+        margin-bottom: 1rem;
+    }
+} 

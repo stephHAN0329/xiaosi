@@ -1,0 +1,601 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // Get DOM elements
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const pauseScreen = document.getElementById('pause-screen');
+    const livesCount = document.getElementById('lives-count');
+    const timerCount = document.getElementById('timer-count');
+    const scoreCount = document.getElementById('score-count');
+    const question = document.getElementById('question');
+    const answerInput = document.getElementById('answer-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const finalScore = document.getElementById('final-score');
+    const pauseScore = document.getElementById('pause-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const highScoreElement = document.getElementById('high-score');
+    const gameOverHighScore = document.getElementById('game-over-high-score');
+    const musicToggle = document.getElementById('music-toggle');
+    const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
+    const quitBtn = document.getElementById('quit-btn');
+    const currentModeDisplay = document.getElementById('current-mode');
+    const gameOverModeDisplay = document.getElementById('game-over-mode');
+    
+    // Mode selection elements
+    const easyModeBtn = document.getElementById('easy-mode');
+    const normalModeBtn = document.getElementById('normal-mode');
+    const hardModeBtn = document.getElementById('hard-mode');
+    const modeDescription = document.getElementById('mode-description');
+    
+    // Background music
+    const bgMusic = new Audio('assets/background-music.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.5;
+    
+    // Sound effects
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const gameOverSound = new Audio('assets/game-over.mp3');
+    const buttonSound = new Audio('assets/button.mp3');
+    
+    // Music state
+    let isMusicOn = false;
+
+    // Game modes
+    const gameModes = {
+        EASY: { lives: 5, timer: 15, name: 'EASY' },
+        NORMAL: { lives: 3, timer: 10, name: 'NORMAL' },
+        HARD: { lives: 1, timer: 5, name: 'HARD' }
+    };
+    
+    // Game state
+    let currentMode = gameModes.NORMAL;
+    let lives = currentMode.lives;
+    let maxLives = currentMode.lives;
+    let initialTimer = currentMode.timer;
+    let score = 0;
+    let timer = initialTimer;
+    let timerInterval;
+    let currentAnswer = 0;
+    let gameActive = false;
+    let isPaused = false;
+    
+    // High scores for each mode - Parse stored values as integers
+    let highScores = {
+        EASY: parseInt(localStorage.getItem('mathGameHighScoreEASY')) || 0,
+        NORMAL: parseInt(localStorage.getItem('mathGameHighScoreNORMAL')) || 0,
+        HARD: parseInt(localStorage.getItem('mathGameHighScoreHARD')) || 0
+    };
+
+    // Update lives display with heart emoji
+    updateLivesDisplay();
+    
+    // Update high score display for current mode
+    updateHighScoreDisplay();
+    
+    // 检测是否为iOS设备
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // iOS设备优化
+    if (isIOS) {
+        // 防止双指缩放
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        // 防止双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = Date.now();
+            if (now - lastTouchEnd < 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // 修复iOS上的音频问题
+        document.addEventListener('touchstart', function() {
+            // 创建一个静音的音频上下文，以解锁iOS上的Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const emptyBuffer = audioContext.createBuffer(1, 1, 22050);
+            const source = audioContext.createBufferSource();
+            source.buffer = emptyBuffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+            
+            // 预加载所有音频
+            bgMusic.load();
+            correctSound.load();
+            wrongSound.load();
+            gameOverSound.load();
+            buttonSound.load();
+            
+            // 移除此事件监听器，因为我们只需要执行一次
+            document.removeEventListener('touchstart', arguments.callee);
+        }, false);
+    }
+    
+    // 尝试自动播放背景音乐（可能会被浏览器阻止）
+    bgMusic.play().then(() => {
+        isMusicOn = true;
+        musicToggle.textContent = '🔇';
+    }).catch(e => {
+        console.log('自动播放音乐被阻止，需要用户交互:', e);
+        isMusicOn = false;
+        musicToggle.textContent = '🔊';
+    });
+    
+    // Mode selection
+    easyModeBtn.addEventListener('click', () => {
+        selectMode(gameModes.EASY);
+        playButtonSound();
+        
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+    });
+    
+    normalModeBtn.addEventListener('click', () => {
+        selectMode(gameModes.NORMAL);
+        playButtonSound();
+        
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+    });
+    
+    hardModeBtn.addEventListener('click', () => {
+        selectMode(gameModes.HARD);
+        playButtonSound();
+        
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+    });
+    
+    // Select game mode
+    function selectMode(mode) {
+        currentMode = mode;
+        maxLives = mode.lives;
+        initialTimer = mode.timer;
+        
+        // Update UI
+        updateModeDescription();
+        updateModeButtons();
+        updateHighScoreDisplay();
+    }
+    
+    // Update mode description
+    function updateModeDescription() {
+        modeDescription.textContent = `LIVES: ${currentMode.lives} | TIME: ${currentMode.timer}s`;
+    }
+    
+    // Update mode buttons
+    function updateModeButtons() {
+        easyModeBtn.classList.remove('selected');
+        normalModeBtn.classList.remove('selected');
+        hardModeBtn.classList.remove('selected');
+        
+        if (currentMode === gameModes.EASY) {
+            easyModeBtn.classList.add('selected');
+        } else if (currentMode === gameModes.NORMAL) {
+            normalModeBtn.classList.add('selected');
+        } else if (currentMode === gameModes.HARD) {
+            hardModeBtn.classList.add('selected');
+        }
+    }
+    
+    // Play button sound
+    function playButtonSound() {
+        if (isMusicOn) {
+            buttonSound.currentTime = 0;
+            buttonSound.play().catch(e => console.log('Unable to play sound effect:', e));
+        }
+    }
+    
+    // Music control
+    musicToggle.addEventListener('click', () => {
+        if (isMusicOn) {
+            bgMusic.pause();
+            musicToggle.textContent = '🔊';
+        } else {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            musicToggle.textContent = '🔇';
+        }
+        isMusicOn = !isMusicOn;
+        playButtonSound();
+    });
+    
+    // Pause control
+    pauseBtn.addEventListener('click', () => {
+        if (gameActive && !isPaused) {
+            pauseGame();
+        }
+        playButtonSound();
+    });
+    
+    // Resume button
+    resumeBtn.addEventListener('click', () => {
+        if (isPaused) {
+            resumeGame();
+        }
+        playButtonSound();
+    });
+    
+    // Quit button
+    quitBtn.addEventListener('click', () => {
+        if (isPaused) {
+            quitGame();
+        }
+        playButtonSound();
+    });
+
+    // Listen for space key to start game
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && startScreen.classList.contains('active')) {
+            startGame();
+            // Play background music if enabled
+            if (isMusicOn) {
+                bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            }
+        } else if (e.code === 'Escape' && gameActive && !isPaused) {
+            pauseGame();
+        }
+    });
+
+    // Listen for submit button
+    submitBtn.addEventListener('click', checkAnswer);
+
+    // Listen for enter key to submit answer
+    answerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && gameActive && !isPaused) {
+            checkAnswer();
+        }
+    });
+
+    // Listen for restart button
+    restartBtn.addEventListener('click', () => {
+        gameOverScreen.classList.remove('active');
+        startScreen.classList.add('active');
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        } else {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+        // Update high score display for the current mode
+        updateHighScoreDisplay();
+        playButtonSound();
+    });
+
+    // Update high score display
+    function updateHighScoreDisplay() {
+        if (highScoreElement) {
+            highScoreElement.textContent = highScores[currentMode.name];
+        }
+    }
+    
+    // Pause game
+    function pauseGame() {
+        if (!gameActive) return;
+        
+        isPaused = true;
+        clearInterval(timerInterval);
+        
+        // Update pause screen
+        pauseScore.textContent = score;
+        
+        // Show pause screen
+        gameScreen.classList.remove('active');
+        pauseScreen.classList.add('active');
+    }
+    
+    // Resume game
+    function resumeGame() {
+        isPaused = false;
+        
+        // Hide pause screen
+        pauseScreen.classList.remove('active');
+        gameScreen.classList.add('active');
+        
+        // Resume timer
+        startTimer();
+        
+        // Focus on input
+        answerInput.focus();
+    }
+    
+    // Quit game
+    function quitGame() {
+        isPaused = false;
+        gameActive = false;
+        
+        // Hide pause screen
+        pauseScreen.classList.remove('active');
+        startScreen.classList.add('active');
+        
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        } else {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+    }
+
+    // Start game
+    function startGame() {
+        // Reset game state
+        lives = currentMode.lives;
+        score = 0;
+        timer = currentMode.timer;
+        updateLivesDisplay();
+        scoreCount.textContent = score;
+        
+        // Update mode display
+        currentModeDisplay.textContent = currentMode.name;
+        
+        // Switch screens
+        startScreen.classList.remove('active');
+        gameScreen.classList.add('active');
+        
+        // Start game
+        gameActive = true;
+        isPaused = false;
+        generateQuestion();
+        
+        // 确保音乐正在播放（如果已启用）
+        if (isMusicOn && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+    }
+
+    // Update lives display with heart emoji
+    function updateLivesDisplay() {
+        livesCount.textContent = '❤️'.repeat(lives);
+    }
+
+    // Add shake effect
+    function addShakeEffect() {
+        gameScreen.classList.add('shake');
+        setTimeout(() => {
+            gameScreen.classList.remove('shake');
+        }, 500);
+    }
+
+    // Generate question
+    function generateQuestion() {
+        // Reset timer
+        clearInterval(timerInterval);
+        timer = currentMode.timer;
+        timerCount.textContent = timer;
+        
+        // Clear input and focus
+        answerInput.value = '';
+        answerInput.focus();
+        
+        // Randomly select operator
+        const operators = ['+', '-', '*', '/'];
+        let operator = operators[Math.floor(Math.random() * operators.length)];
+        
+        let num1, num2;
+        
+        // Generate numbers based on operator
+        if (operator === '*') {
+            // Multiplication: ensure numbers don't exceed 20
+            num1 = Math.floor(Math.random() * 11) + 10; // 10-20
+            num2 = Math.floor(Math.random() * 11) + 10; // 10-20
+        } else {
+            // Other operations: two-digit numbers
+            num1 = Math.floor(Math.random() * 90) + 10; // 10-99
+            num2 = Math.floor(Math.random() * 90) + 10; // 10-99
+        }
+        
+        // Ensure subtraction result is positive
+        if (operator === '-' && num1 < num2) {
+            // Swap numbers
+            [num1, num2] = [num2, num1];
+        }
+        
+        // Ensure division result is an integer
+        if (operator === '/') {
+            // Find a factor of num1 to use as num2
+            const factors = [];
+            for (let i = 2; i <= Math.min(99, num1); i++) {
+                if (num1 % i === 0) {
+                    factors.push(i);
+                }
+            }
+            
+            if (factors.length > 0) {
+                // Randomly select a factor
+                const randomFactor = factors[Math.floor(Math.random() * factors.length)];
+                // Ensure num2 is a two-digit number
+                if (randomFactor >= 10) {
+                    currentAnswer = num1 / randomFactor;
+                    question.textContent = `${num1} ÷ ${randomFactor} = ?`;
+                } else {
+                    // If factor is less than 10, use addition
+                    operator = '+';
+                }
+            } else {
+                // If no suitable factors, use addition
+                operator = '+';
+            }
+        }
+        
+        // Calculate answer and display question based on operator
+        if (operator === '+') {
+            currentAnswer = num1 + num2;
+            question.textContent = `${num1} + ${num2} = ?`;
+        } else if (operator === '-') {
+            currentAnswer = num1 - num2;
+            question.textContent = `${num1} - ${num2} = ?`;
+        } else if (operator === '*') {
+            currentAnswer = num1 * num2;
+            question.textContent = `${num1} × ${num2} = ?`;
+        }
+        
+        // Start timer
+        startTimer();
+        
+        // 在iOS上，确保输入框获得焦点后滚动到可见区域
+        if (isIOS) {
+            setTimeout(() => {
+                answerInput.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }, 100);
+        }
+    }
+
+    // Start timer
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timer--;
+            timerCount.textContent = timer;
+            
+            if (timer <= 0) {
+                clearInterval(timerInterval);
+                handleWrongAnswer();
+            }
+        }, 1000);
+    }
+
+    // Check answer
+    function checkAnswer() {
+        if (!gameActive || isPaused) return;
+        
+        const userAnswer = parseInt(answerInput.value);
+        
+        if (isNaN(userAnswer)) {
+            // If user didn't enter a valid number, do nothing
+            return;
+        }
+        
+        if (userAnswer === currentAnswer) {
+            handleCorrectAnswer();
+        } else {
+            handleWrongAnswer();
+        }
+    }
+
+    // Handle correct answer
+    function handleCorrectAnswer() {
+        // Play correct sound effect
+        if (isMusicOn) {
+            correctSound.play().catch(e => console.log('Unable to play sound effect:', e));
+        }
+        
+        // Increase score
+        score++;
+        scoreCount.textContent = score;
+        
+        // Generate new question
+        generateQuestion();
+    }
+
+    // Handle wrong answer
+    function handleWrongAnswer() {
+        // Play wrong sound effect
+        if (isMusicOn) {
+            wrongSound.play().catch(e => console.log('Unable to play sound effect:', e));
+        }
+        
+        // Decrease lives
+        lives--;
+        updateLivesDisplay();
+        
+        // Add shake effect
+        addShakeEffect();
+        
+        // Show correct answer
+        question.textContent = `CORRECT ANSWER: ${currentAnswer}`;
+        
+        // Clear timer
+        clearInterval(timerInterval);
+        
+        // Check if game is over
+        if (lives <= 0) {
+            endGame();
+        } else {
+            // Show new question after 2 seconds
+            setTimeout(generateQuestion, 2000);
+        }
+    }
+
+    // End game
+    function endGame() {
+        gameActive = false;
+        clearInterval(timerInterval);
+        
+        // Play game over sound effect
+        if (isMusicOn) {
+            gameOverSound.play().catch(e => console.log('Unable to play sound effect:', e));
+        }
+        
+        // Check if this is a new high score
+        const currentHighScore = highScores[currentMode.name];
+        if (score > currentHighScore) {
+            // Update high score in memory
+            highScores[currentMode.name] = score;
+            // Save to localStorage with the correct key
+            localStorage.setItem(`mathGameHighScore${currentMode.name}`, score);
+            console.log(`New high score for ${currentMode.name} mode: ${score}`);
+        }
+        
+        // Show final score and high score
+        finalScore.textContent = score;
+        gameOverModeDisplay.textContent = currentMode.name;
+        
+        // Always update the high score display with the current high score
+        if (gameOverHighScore) {
+            gameOverHighScore.textContent = highScores[currentMode.name];
+        }
+        
+        // Switch to game over screen
+        gameScreen.classList.remove('active');
+        gameOverScreen.classList.add('active');
+        
+        // 如果音乐已开启，确保音乐正在播放
+        if (isMusicOn && bgMusic.paused) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+    }
+
+    // 添加触摸事件支持
+    if (isIOS) {
+        // 为空格键添加触摸事件
+        startScreen.addEventListener('touchstart', function() {
+            if (startScreen.classList.contains('active')) {
+                startGame();
+                // Play background music if enabled
+                if (isMusicOn) {
+                    bgMusic.play().catch(e => console.log('Unable to play music:', e));
+                }
+            }
+        });
+        
+        // 优化输入框焦点
+        answerInput.addEventListener('touchstart', function(e) {
+            // 防止事件冒泡，确保只有输入框获得焦点
+            e.stopPropagation();
+        });
+    }
+    
+    // 添加iOS上的虚拟键盘处理
+    if (isIOS) {
+        // 监听虚拟键盘显示事件
+        window.addEventListener('resize', function() {
+            // 如果游戏正在进行且输入框有焦点
+            if (gameActive && document.activeElement === answerInput) {
+                // 滚动到问题区域，确保问题和输入框可见
+                question.scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+        });
+    }
+}); 

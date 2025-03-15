@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Math Practice">
+    <link rel="apple-touch-icon" href="assets/app-icon.png">
+    <link rel="apple-touch-startup-image" href="assets/launch-screen.png">
+    <title>Math Practice Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="pixel-background"></div>
+    
+    <!-- Control Buttons -->
+    <div class="control-buttons">
+        <button id="music-toggle" class="pixel-button control-btn">🔊</button>
+        <button id="pause-btn" class="pixel-button control-btn">⏸️</button>
+    </div>
+    
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <h1 class="pixel-text">MATH PRACTICE</h1>
+        <div class="pixel-character"></div>
+        <p class="pixel-text">PRACTICE TWO-DIGIT ARITHMETIC</p>
+        <div class="high-score-container">
+            <p class="pixel-text">HIGH SCORE: <span id="high-score">0</span></p>
+        </div>
+        
+        <!-- Game Mode Selection -->
+        <div class="mode-selection">
+            <h2 class="pixel-text">SELECT MODE:</h2>
+            <div class="mode-buttons">
+                <button id="easy-mode" class="pixel-button mode-btn">EASY</button>
+                <button id="normal-mode" class="pixel-button mode-btn selected">NORMAL</button>
+                <button id="hard-mode" class="pixel-button mode-btn">HARD</button>
+            </div>
+            <div class="mode-info">
+                <p id="mode-description" class="pixel-text">LIVES: 3 | TIME: 10s</p>
+            </div>
+        </div>
+        
+        <p class="instruction pixel-text">PRESS SPACE TO START</p>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-info-container">
+            <div class="mode-display-row pixel-panel">
+                <span class="pixel-text">MODE: </span>
+                <span id="current-mode" class="pixel-text">NORMAL</span>
+            </div>
+            <div class="game-stats-row pixel-panel">
+                <div class="lives">
+                    <span class="pixel-text">LIVES: </span>
+                    <span id="lives-count" class="pixel-text">3</span>
+                </div>
+                <div class="timer">
+                    <span class="pixel-text">TIME: </span>
+                    <span id="timer-count" class="pixel-text">10</span>
+                </div>
+                <div class="score">
+                    <span class="pixel-text">SCORE: </span>
+                    <span id="score-count" class="pixel-text">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container pixel-panel">
+            <div id="question" class="pixel-text">READY?</div>
+            <input type="number" id="answer-input" class="pixel-input" placeholder="ANSWER">
+            <button id="submit-btn" class="pixel-button">SUBMIT</button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen">
+        <h1 class="pixel-text">GAME OVER</h1>
+        <div class="pixel-character sad"></div>
+        <p class="pixel-text">MODE: <span id="game-over-mode">NORMAL</span></p>
+        <p class="pixel-text">YOUR SCORE: <span id="final-score">0</span></p>
+        <p class="pixel-text">HIGH SCORE: <span id="game-over-high-score">0</span></p>
+        <button id="restart-btn" class="pixel-button">PLAY AGAIN</button>
+    </div>
+    
+    <!-- Pause Screen -->
+    <div id="pause-screen" class="screen">
+        <h1 class="pixel-text">GAME PAUSED</h1>
+        <div class="pixel-character"></div>
+        <p class="pixel-text">CURRENT SCORE: <span id="pause-score">0</span></p>
+        <button id="resume-btn" class="pixel-button">RESUME</button>
+        <button id="quit-btn" class="pixel-button">QUIT</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
