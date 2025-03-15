@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameScreen = document.getElementById('game-screen');
     const gameOverScreen = document.getElementById('game-over-screen');
     const pauseScreen = document.getElementById('pause-screen');
+    const rotateMessage = document.getElementById('rotate-message');
     const livesCount = document.getElementById('lives-count');
     const timerCount = document.getElementById('timer-count');
     const scoreCount = document.getElementById('score-count');
@@ -79,6 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // 检测是否为iOS设备
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    // 检测屏幕方向
+    function checkOrientation() {
+        // 只在移动设备上检测方向
+        if (window.innerWidth <= 1024) {
+            if (window.innerHeight > window.innerWidth) {
+                // 竖屏
+                if (rotateMessage) rotateMessage.style.display = 'flex';
+                if (gameActive && !isPaused) {
+                    // 如果游戏正在进行，暂停游戏
+                    pauseGame();
+                }
+            } else {
+                // 横屏
+                if (rotateMessage) rotateMessage.style.display = 'none';
+            }
+        } else {
+            // 桌面设备不显示旋转提示
+            if (rotateMessage) rotateMessage.style.display = 'none';
+        }
+    }
+    
+    // 初始检测屏幕方向
+    checkOrientation();
+    
+    // 监听屏幕方向变化
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
     
     // iOS设备优化
     if (isIOS) {
@@ -159,6 +188,43 @@ document.addEventListener('DOMContentLoaded', () => {
             bgMusic.play().catch(e => console.log('Unable to play music:', e));
         }
     });
+    
+    // 为iOS设备添加触摸事件支持
+    if (isIOS) {
+        // 为模式选择按钮添加触摸事件
+        easyModeBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // 防止默认行为
+            selectMode(gameModes.EASY);
+            playButtonSound();
+            
+            // 如果音乐已开启，确保音乐正在播放
+            if (isMusicOn && bgMusic.paused) {
+                bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            }
+        });
+        
+        normalModeBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // 防止默认行为
+            selectMode(gameModes.NORMAL);
+            playButtonSound();
+            
+            // 如果音乐已开启，确保音乐正在播放
+            if (isMusicOn && bgMusic.paused) {
+                bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            }
+        });
+        
+        hardModeBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // 防止默认行为
+            selectMode(gameModes.HARD);
+            playButtonSound();
+            
+            // 如果音乐已开启，确保音乐正在播放
+            if (isMusicOn && bgMusic.paused) {
+                bgMusic.play().catch(e => console.log('Unable to play music:', e));
+            }
+        });
+    }
     
     // Select game mode
     function selectMode(mode) {
@@ -300,6 +366,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Resume game
     function resumeGame() {
+        // 检查是否处于横屏模式
+        if (window.innerWidth <= 1024 && window.innerHeight > window.innerWidth) {
+            // 如果是竖屏，不恢复游戏，显示旋转提示
+            if (rotateMessage) rotateMessage.style.display = 'flex';
+            return;
+        }
+        
         isPaused = false;
         
         // Hide pause screen
@@ -333,6 +406,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start game
     function startGame() {
+        // 检查是否处于横屏模式
+        if (window.innerWidth <= 1024 && window.innerHeight > window.innerWidth) {
+            // 如果是竖屏，不开始游戏，显示旋转提示
+            if (rotateMessage) rotateMessage.style.display = 'flex';
+            return;
+        }
+        
         // Reset game state
         lives = currentMode.lives;
         score = 0;
