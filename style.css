@@ -130,6 +130,11 @@ body {
     outline: none;
 }
 
+.pixel-input.focused {
+    border-color: #7a9cff;
+    box-shadow: 0 0 10px #7a9cff;
+}
+
 /* 像素风格角色 */
 .pixel-character {
     width: 100px;
@@ -388,6 +393,20 @@ p {
         appearance: none;
         border-radius: 0;
     }
+    
+    /* iOS上的数字键盘优化 */
+    .num-key {
+        min-width: 65px;
+        min-height: 65px;
+        font-size: 1.6rem;
+        margin: 0.3rem;
+    }
+    
+    /* 确保数字键盘在iOS上可见 */
+    .number-keyboard {
+        display: flex !important;
+        margin-top: 2rem;
+    }
 }
 
 /* iPad特定优化 */
@@ -458,5 +477,83 @@ p {
     
     .game-info-container {
         margin-bottom: 1rem;
+    }
+}
+
+/* 开始游戏按钮样式 */
+.start-btn {
+    margin-top: 1rem;
+    background-color: #5eff8f;
+    color: #000;
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    animation: pulse 1.5s infinite;
+}
+
+.start-btn:hover {
+    background-color: #8fffb0;
+}
+
+/* 数字键盘样式 */
+.number-keyboard {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.num-key {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 隐藏输入框的原生数字按钮 */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* iPad特定优化 - 更新数字键盘样式 */
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+    .num-key {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+    
+    .start-btn {
+        font-size: 1.5rem;
+        padding: 1.2rem 2.5rem;
+    }
+}
+
+/* 横屏模式下的键盘优化 */
+@media only screen and (orientation: landscape) {
+    .number-keyboard {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .keyboard-row {
+        width: auto;
     }
 } 

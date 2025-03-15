@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const quitBtn = document.getElementById('quit-btn');
     const currentModeDisplay = document.getElementById('current-mode');
     const gameOverModeDisplay = document.getElementById('game-over-mode');
+    const startBtn = document.getElementById('start-btn');
+    const numKeys = document.querySelectorAll('.num-key');
     
     // Mode selection elements
     const easyModeBtn = document.getElementById('easy-mode');
@@ -445,11 +447,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Start timer
         startTimer();
         
-        // 在iOS上，确保输入框获得焦点后滚动到可见区域
-        if (isIOS) {
-            setTimeout(() => {
-                answerInput.scrollIntoView({behavior: 'smooth', block: 'center'});
-            }, 100);
+        // 在iOS上，不自动聚焦输入框，避免弹出系统键盘
+        if (!isIOS) {
+            answerInput.focus();
+        } else {
+            // 清空输入框
+            answerInput.value = '';
         }
     }
 
@@ -596,6 +599,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 滚动到问题区域，确保问题和输入框可见
                 question.scrollIntoView({behavior: 'smooth', block: 'center'});
             }
+        });
+    }
+
+    // 开始游戏按钮
+    startBtn.addEventListener('click', () => {
+        startGame();
+        // Play background music if enabled
+        if (isMusicOn) {
+            bgMusic.play().catch(e => console.log('Unable to play music:', e));
+        }
+        playButtonSound();
+    });
+    
+    // 数字键盘处理
+    numKeys.forEach(key => {
+        key.addEventListener('click', () => {
+            if (!gameActive || isPaused) return;
+            
+            const keyValue = key.getAttribute('data-key');
+            
+            if (keyValue === 'backspace') {
+                // 删除最后一个字符
+                answerInput.value = answerInput.value.slice(0, -1);
+            } else if (keyValue === 'clear') {
+                // 清空输入
+                answerInput.value = '';
+            } else {
+                // 添加数字
+                answerInput.value += keyValue;
+            }
+            
+            // 播放按钮音效
+            playButtonSound();
+            
+            // 保持输入框焦点
+            answerInput.focus();
+        });
+    });
+    
+    // 防止输入框获取焦点时弹出系统键盘
+    if (isIOS) {
+        answerInput.addEventListener('focus', function(e) {
+            // 在iOS上，阻止系统键盘弹出
+            answerInput.blur();
+            // 但保持视觉上的焦点状态
+            answerInput.classList.add('focused');
+            e.preventDefault();
+        });
+        
+        // 点击输入框时不弹出键盘，而是显示我们的自定义键盘
+        answerInput.addEventListener('click', function(e) {
+            e.preventDefault();
+            // 确保数字键盘可见
+            document.querySelector('.number-keyboard').style.display = 'flex';
         });
     }
 }); 
